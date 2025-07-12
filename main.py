@@ -7,6 +7,12 @@ It clones or downloads required worker repositories (including _utils and a main
 
 Based on the detected class type (Ray actor or Serve deployment), it either deploys the class using serve.run() or starts it as a Ray actor via .remote(), with logs and error handling throughout the process.
 
+
+USER_ID
+ENV_ID
+DEPLOYMENT_TYPE
+REQUEST_ENDPOINT
+DOMAIN
 """
 
 import importlib
@@ -16,14 +22,23 @@ import subprocess
 from ray import serve
 import importlib.util
 import inspect
-import ray, os, sys, requests, zipfile, io
+import ray, os, sys, requests
 
 init_state = os.environ.get("INIT")
 
+
+def set_endpoint():
+    import socket
+    env_id = os.environ.get("ENV_ID")
+
+    host_ip = socket.gethostbyname(socket.gethostname())
+    address = f"ray://{host_ip}:10001"
+    endpoint = address + f"/{env_id}"
+    os.environ["IP"] = endpoint
+
+
 if os.name == "nt":
     from utils.logger import LOGGER
-else:
-    self_type = os.environ.get("DEPLOYMENT_TYPE") # head || worker
 
 def get_gh_creds():
     # Fetch server
@@ -37,6 +52,9 @@ def get_gh_creds():
         request_url = "http://127.0.0.1:8000" + endpoint
     else:
         request_url = f"https://{domain}{endpoint}"
+
+        #RELAY_ENDPOINT
+        os.environ["RELAY_ENDPOINT"] = request_url
 
     response = requests.get(
         request_url,
