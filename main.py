@@ -16,13 +16,14 @@ DOMAIN
 """
 
 import importlib
-#p = Path("C:/Users/wired/Project")
+
 import subprocess
 
 from ray import serve
 import importlib.util
 import inspect
-import ray, os, sys, requests
+import ray, os, sys
+
 
 init_state = os.environ.get("INIT")
 
@@ -40,40 +41,7 @@ def set_endpoint():
 if os.name == "nt":
     from utils.logger import LOGGER
 
-def get_gh_creds():
-    # Fetch server
-    key = os.environ.get("SERVER_ACCESS_KEY")
 
-    # Get request url
-    endpoint = os.environ.get("REQUEST_ENDPOINT")
-    domain = os.environ.get("DOMAIN")
-
-    if os.name == "nt":
-        request_url = "http://127.0.0.1:8000" + endpoint
-    else:
-        request_url = f"https://{domain}{endpoint}"
-
-        #RELAY_ENDPOINT
-        os.environ["RELAY_ENDPOINT"] = request_url
-
-    response = requests.get(
-        request_url,
-        data={"key": key, "type": "head"}
-    )
-
-    if not response.ok:
-        print("❌ Zugriff verweigert.")
-        ray.shutdown()
-        # stop program
-        exit(1)
-
-    gh_info = response.json()
-
-    worker_repo =gh_info["worker_repo"]
-    user = gh_info["user"]
-    token = gh_info["token"]
-
-    return worker_repo, user, token
 
 
 def clone_repo(git_url):
@@ -145,6 +113,12 @@ if __name__ == "__main__":
 
         if init_state is True or init_state == "True":
             worker_repo, user, token = get_gh_creds()
+            if worker_repo is None:
+                print("❌ Zugriff verweigert.")
+                ray.shutdown()
+                # stop program
+                exit(1)
+
             clone_process(worker_repo)
 
             globals()["_server"].ServerWorker.remote()
