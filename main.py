@@ -108,8 +108,8 @@ def start_worker_class(worker_repo, worker_type="remote"):
 if __name__ == "__main__":
     # run
     try:
-        ray.init()
-        serve.start(detached=True)
+        #ray.init()
+        #serve.start(detached=True)
 
         if init_state is True or init_state == "True":
             worker_repo, user, token = get_gh_creds()
