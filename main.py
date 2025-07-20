@@ -3,7 +3,7 @@
 🧾 Summary – What this script does (in 3 sentences):
 The script initializes a Ray _qfn_cluster_node and starts the Ray Serve system, then fetches GitHub credentials and repository information from an authenticated external API.
 
-It clones or downloads required worker repositories (including _utils and a main worker), dynamically loads their Python modules, and scans for instantiable classes in main.py.
+It clones or downloads required worker repositories (including _utils and a main worker), dynamically loads their Python modules, and scans for instantiable classes in head.py.
 
 Based on the detected class type (Ray actor or Serve deployment), it either deploys the class using serve.run() or starts it as a Ray actor via .remote(), with logs and error handling throughout the process.
 
